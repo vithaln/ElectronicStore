@@ -15,7 +15,7 @@ import lombok.Setter;
 @Builder
 public class PagebleResponse<T> {
 
-	
+	//T-->generic/general class
 	private List<T> contents;
 	private long totalElements;
 	private int totalPages;
