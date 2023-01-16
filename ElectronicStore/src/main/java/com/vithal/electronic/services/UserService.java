@@ -2,6 +2,7 @@ package com.vithal.electronic.services;
 
 import java.util.List;
 
+import com.vithal.electronic.dtos.PagebleResponse;
 import com.vithal.electronic.dtos.UserDto;
 
 public interface UserService {
@@ -11,7 +12,7 @@ public interface UserService {
 	UserDto createUser(UserDto userDto);
 	
 	//get All users
-	List<UserDto> getAllUsers();
+	PagebleResponse<UserDto> getAllUsers(int pageNumber,int pageSize,String sortBy,String sortDir);
 	
 	//get user by Id
 	UserDto getUserById(String userId);
