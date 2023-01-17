@@ -41,5 +41,16 @@ public class GlobalExceptionHandler {
 		});
 		return new ResponseEntity<Map<String,Object>>(response,HttpStatus.NOT_FOUND);
 	}
+	
+	//file handler
+	@ExceptionHandler(BadApiRequest.class)
+	public ResponseEntity<ApiResponseMesg> badApiRequestHandler(BadApiRequest ex){
+		
+		ApiResponseMesg apiResponseMesg = ApiResponseMesg.builder()
+		.message(ex.getMessage())
+		.status(HttpStatus.BAD_REQUEST)
+		.success(false).build();
+		return new  ResponseEntity<ApiResponseMesg>(apiResponseMesg,HttpStatus.BAD_REQUEST);
+	}
 
 }
