@@ -1,11 +1,17 @@
 package com.vithal.electronic.service.impl;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,7 +26,10 @@ import com.vithal.electronic.helper.Helper;
 import com.vithal.electronic.repository.UserRepository;
 import com.vithal.electronic.services.UserService;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 public class UserServiceImpl implements UserService {
 
 	
@@ -29,6 +38,9 @@ public class UserServiceImpl implements UserService {
 	
 	@Autowired
 	private ModelMapper mapper;
+	
+	@Value("${user.profile.imageName}")
+	private String imagePath;
 	
 	@Override
 	public UserDto createUser(UserDto userDto) {
@@ -138,7 +150,25 @@ List<UserDto> userDtos = users.stream().map(user->entityToDto(user)).collect(Col
 	@Override
 	public void delteUserByUserId(String userId) {
 		User usr=repository.findById(userId).orElseThrow(()-> new ResourceNotFoudException("User Not Found with this Id "+userId));
-repository.delete(usr);
+
+		//delete user profile image 
+		//images/users/vikki.png
+		String fullImagePath=imagePath+usr.getImageName();
+		log.info("Image Fill path {}",fullImagePath);
+		
+		try {
+			
+		Path path=Paths.get(fullImagePath);
+		Files.delete(path);
+		
+		}catch(NoSuchFileException ex) {
+			ex.printStackTrace();
+			log.info("User profile Image not found in folder {}");
+		}
+		catch(IOException ex) {
+			ex.printStackTrace();
+		}
+		repository.delete(usr);
 		
 	}
 	
