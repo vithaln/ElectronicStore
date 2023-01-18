@@ -1,8 +1,14 @@
 package com.vithal.electronic.entities;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,5 +31,8 @@ public class Category {
 	@Column(name = "cate_Description",length = 60)
 	private String decription;
 	private String coverImage;
+	
+	@OneToMany(mappedBy = "category",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+	private List<Product> products=new ArrayList<>();
 
 }

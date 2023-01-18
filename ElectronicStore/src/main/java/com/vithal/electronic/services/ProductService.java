@@ -14,5 +14,16 @@ public interface ProductService {
 	PagebleResponse<ProductDto> getAllProducts(int pageNumber, int pageSize,String sortBy,String sortDir);
 	PagebleResponse<ProductDto> getAllProductLives(int pageNumber, int pageSize,String sortBy,String sortDir);
 
+	//createProductWithCategoryId
+	
+	ProductDto createProductWithCategoryId(ProductDto dto,String categoryId);
+	
+	//update category in products
+	
+	ProductDto updateCategory(String categoryId,String productId);
+	
+	//get all product of category
+	//it is for in one categories how many products we have that's what we get.
+	PagebleResponse<ProductDto> getAllOfProductOfCategorries(String categoryId,int pageNumber,int pageSize,String sortBy,String sortDir);
 	
 }

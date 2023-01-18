@@ -6,6 +6,7 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
@@ -19,9 +20,11 @@ import org.springframework.stereotype.Service;
 
 import com.vithal.electronic.dtos.PagebleResponse;
 import com.vithal.electronic.dtos.ProductDto;
+import com.vithal.electronic.entities.Category;
 import com.vithal.electronic.entities.Product;
 import com.vithal.electronic.exceptions.ResourceNotFoudException;
 import com.vithal.electronic.helper.Helper;
+import com.vithal.electronic.repository.CategoryRepo;
 import com.vithal.electronic.repository.ProductRepo;
 import com.vithal.electronic.services.ProductService;
 
@@ -35,7 +38,8 @@ public class ProductServiceImpl implements ProductService {
 	private ModelMapper mapper;
 	@Value("${product.profile.imageName}")
 	private String imagePath;
-
+@Autowired
+	private CategoryRepo categoryRepo;
 	@Override
 	public ProductDto createProduct(ProductDto dto) {
 
@@ -134,6 +138,51 @@ public class ProductServiceImpl implements ProductService {
 		Pageable pageble = PageRequest.of(pageNumber, pageSize, sort);
 		Page<Product> page = productRepo.findByLiveTrue(pageble);
 		PagebleResponse<ProductDto> pagebleResponse = Helper.getPAgebaleResponse(page, ProductDto.class);
+		return pagebleResponse;
+	}
+	
+	//create product with categoryId
+	//http:localhost:9090/categories/categoryId/products
+
+	@Override
+	public ProductDto createProductWithCategoryId(ProductDto dto, String categoryId) {
+		
+		 Category category = categoryRepo.findById(categoryId).orElseThrow(()-> new ResourceNotFoudException("Category Not Found with this Id "+categoryId));
+		
+		 Product product = mapper.map(dto, Product.class);
+		 product.setProductId(UUID.randomUUID().toString());
+		 product.setAddedDate(new Date());
+		 product.setCategory(category);
+		 Product savedProduct = productRepo.save(product);
+		 ProductDto productDto = mapper.map(savedProduct, ProductDto.class);
+		return productDto;
+	}
+
+	@Override
+	public ProductDto updateCategory(String categoryId, String productId) {
+
+		Product product = productRepo.findById(productId).orElseThrow(()-> new ResourceNotFoudException("Product not found with this Id "+productId));
+		Category category = categoryRepo.findById(categoryId).orElseThrow(()-> new ResourceNotFoudException("Category not found with this Id "+categoryId));
+		product.setCategory(category);
+		Product savedproduct = productRepo.save(product);
+		return mapper.map(savedproduct, ProductDto.class);
+	}
+
+	@Override
+	public PagebleResponse<ProductDto> getAllOfProductOfCategorries(String categoryId, int pageNumber, int pageSize,
+			String sortBy, String sortDir) {
+
+		Category category = categoryRepo.findById(categoryId).orElseThrow(()-> new ResourceNotFoudException("Category not found with this Id "+categoryId));
+
+		
+		Sort sort=(sortDir.equalsIgnoreCase("desc"))?(Sort.by(sortBy).descending()):(Sort.by(sortBy).ascending());
+		Pageable pageble=PageRequest.of(pageNumber, pageSize,sort);
+		
+		
+		Page<Product> page = productRepo.findByCategory(category, pageble);
+		
+		PagebleResponse<ProductDto> pagebleResponse = Helper.getPAgebaleResponse(page, ProductDto.class);
+		
 		return pagebleResponse;
 	}
 
